@@ -1,0 +1,41 @@
+# Environment Variables
+.env
+.env.*
+!.env.example
+*.env.local
+*.env.*.local
+
+# Build & Dependency artifacts
+target/
+**/target/
+dist/
+**/dist/
+build/
+**/build/
+node_modules/
+**/node_modules/
+*.class
+*.jar
+*.war
+
+# IDE & Editor files
+.idea/
+*.iml
+.vscode/
+*.suo
+*.user
+*.useroscan
+*.sln.docstates
+.classpath
+.project
+.settings/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/
+**/logs/

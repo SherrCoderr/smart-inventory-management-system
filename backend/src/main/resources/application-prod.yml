@@ -1,0 +1,14 @@
+# Production profile overrides
+spring:
+  jpa:
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+
+logging:
+  level:
+    root: INFO
+    com.inventory: INFO
+    org.springframework.security: WARN
+    org.hibernate: WARN
