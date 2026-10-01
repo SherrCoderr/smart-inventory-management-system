@@ -18,6 +18,7 @@ import com.inventory.repository.ProductRepository;
 import com.inventory.repository.UserRepository;
 import com.inventory.security.UserPrincipal;
 import com.inventory.service.InventoryService;
+import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,11 +27,13 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -159,9 +162,27 @@ public class InventoryServiceImpl implements InventoryService {
             LocalDateTime endDate,
             Pageable pageable
     ) {
-        Page<InventoryTransaction> page = transactionRepository.searchTransactions(
-                productId, userId, transactionType, startDate, endDate, pageable
-        );
+        Specification<InventoryTransaction> spec = (root, cq, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            if (productId != null) {
+                predicates.add(cb.equal(root.get("product").get("id"), productId));
+            }
+            if (userId != null) {
+                predicates.add(cb.equal(root.get("user").get("id"), userId));
+            }
+            if (transactionType != null) {
+                predicates.add(cb.equal(root.get("transactionType"), transactionType));
+            }
+            if (startDate != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("createdAt"), startDate));
+            }
+            if (endDate != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("createdAt"), endDate));
+            }
+            return predicates.isEmpty() ? cb.conjunction() : cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        Page<InventoryTransaction> page = transactionRepository.findAll(spec, pageable);
 
         List<TransactionResponse> responses = page.getContent().stream()
                 .map(TransactionResponse::fromEntity)

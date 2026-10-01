@@ -17,8 +17,11 @@ import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import jakarta.persistence.criteria.Predicate;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -32,8 +35,22 @@ public class SupplierServiceImpl implements SupplierService {
     @Override
     @Transactional(readOnly = true)
     public PagedResponse<SupplierResponse> getAllSuppliers(String search, Boolean active, Pageable pageable) {
-        String searchQuery = (search != null && !search.trim().isEmpty()) ? search.trim() : null;
-        Page<Supplier> page = supplierRepository.searchSuppliers(searchQuery, active, pageable);
+        Specification<Supplier> spec = (root, cq, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            if (search != null && !search.trim().isEmpty()) {
+                String pattern = "%" + search.trim().toLowerCase() + "%";
+                predicates.add(cb.or(
+                        cb.like(cb.lower(root.get("name")), pattern),
+                        cb.like(cb.lower(root.get("email")), pattern)
+                ));
+            }
+            if (active != null) {
+                predicates.add(cb.equal(root.get("active"), active));
+            }
+            return predicates.isEmpty() ? cb.conjunction() : cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        Page<Supplier> page = supplierRepository.findAll(spec, pageable);
 
         List<SupplierResponse> responses = page.getContent().stream()
                 .map(SupplierResponse::fromEntity)

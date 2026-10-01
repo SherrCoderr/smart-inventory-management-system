@@ -4,6 +4,7 @@ import com.inventory.entity.Supplier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -12,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface SupplierRepository extends JpaRepository<Supplier, Long> {
+public interface SupplierRepository extends JpaRepository<Supplier, Long>, JpaSpecificationExecutor<Supplier> {
 
     Optional<Supplier> findByEmailIgnoreCase(String email);
 
@@ -25,10 +26,10 @@ public interface SupplierRepository extends JpaRepository<Supplier, Long> {
     Page<Supplier> findByActiveTrue(Pageable pageable);
 
     @Query("SELECT s FROM Supplier s WHERE " +
-           "(:query IS NULL OR LOWER(s.name) LIKE LOWER(CONCAT('%', :query, '%')) OR LOWER(s.email) LIKE LOWER(CONCAT('%', :query, '%'))) AND " +
+           "(:pattern IS NULL OR LOWER(s.name) LIKE :pattern OR LOWER(s.email) LIKE :pattern) AND " +
            "(:active IS NULL OR s.active = :active)")
     Page<Supplier> searchSuppliers(
-        @Param("query") String query,
+        @Param("pattern") String pattern,
         @Param("active") Boolean active,
         Pageable pageable
     );

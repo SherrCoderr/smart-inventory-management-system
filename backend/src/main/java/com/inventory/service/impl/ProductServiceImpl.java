@@ -24,6 +24,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.criteria.Predicate;
+import org.springframework.data.jpa.domain.Specification;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -52,8 +56,28 @@ public class ProductServiceImpl implements ProductService {
         log.info("Querying products from PostgreSQL DB (cache miss). Filter: query={}, categoryId={}, supplierId={}, active={}",
                 query, categoryId, supplierId, active);
 
-        String searchQuery = (query != null && !query.trim().isEmpty()) ? query.trim() : null;
-        Page<Product> page = productRepository.searchProducts(searchQuery, categoryId, supplierId, active, pageable);
+        Specification<Product> spec = (root, cq, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            if (query != null && !query.trim().isEmpty()) {
+                String pattern = "%" + query.trim().toLowerCase() + "%";
+                predicates.add(cb.or(
+                        cb.like(cb.lower(root.get("name")), pattern),
+                        cb.like(cb.lower(root.get("sku")), pattern)
+                ));
+            }
+            if (categoryId != null) {
+                predicates.add(cb.equal(root.get("category").get("id"), categoryId));
+            }
+            if (supplierId != null) {
+                predicates.add(cb.equal(root.get("supplier").get("id"), supplierId));
+            }
+            if (active != null) {
+                predicates.add(cb.equal(root.get("active"), active));
+            }
+            return predicates.isEmpty() ? cb.conjunction() : cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        Page<Product> page = productRepository.findAll(spec, pageable);
 
         List<ProductResponse> responses = page.getContent().stream()
                 .map(ProductResponse::fromEntity)

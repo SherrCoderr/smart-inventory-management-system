@@ -5,6 +5,7 @@ import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ProductRepository extends JpaRepository<Product, Long> {
+public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
 
     Optional<Product> findBySku(String sku);
 
@@ -46,16 +47,16 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("SELECT COUNT(p) FROM Product p WHERE p.active = true AND p.currentStock <= p.minStockThreshold")
     long countLowStockProducts();
 
-    @Query("SELECT COALESCE(SUM(p.price * p.currentStock), 0) FROM Product p WHERE p.active = true")
+    @Query("SELECT SUM(p.price * p.currentStock) FROM Product p WHERE p.active = true")
     BigDecimal calculateTotalInventoryValue();
 
     @Query("SELECT p FROM Product p WHERE " +
            "(:active IS NULL OR p.active = :active) AND " +
-           "(:query IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :query, '%')) OR LOWER(p.sku) LIKE LOWER(CONCAT('%', :query, '%'))) AND " +
+           "(:pattern IS NULL OR LOWER(p.name) LIKE :pattern OR LOWER(p.sku) LIKE :pattern) AND " +
            "(:categoryId IS NULL OR p.category.id = :categoryId) AND " +
            "(:supplierId IS NULL OR p.supplier.id = :supplierId)")
     Page<Product> searchProducts(
-        @Param("query") String query,
+        @Param("pattern") String pattern,
         @Param("categoryId") Long categoryId,
         @Param("supplierId") Long supplierId,
         @Param("active") Boolean active,

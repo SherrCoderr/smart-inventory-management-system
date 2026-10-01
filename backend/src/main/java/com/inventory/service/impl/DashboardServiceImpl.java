@@ -56,9 +56,9 @@ public class DashboardServiceImpl implements DashboardService {
         long totalStockIn = transactionRepository.sumQuantityByTypeAndSince(TransactionType.STOCK_IN, sevenDaysAgo);
         long totalStockOut = transactionRepository.sumQuantityByTypeAndSince(TransactionType.STOCK_OUT, sevenDaysAgo);
 
-        // 3. Top 10 recent transactions with JOIN FETCH
+        // 3. Top 10 recent transactions with EntityGraph
         List<TransactionResponse> recentTransactions = transactionRepository
-                .findRecentTransactionsWithDetails(PageRequest.of(0, 10))
+                .findTop10ByOrderByCreatedAtDesc()
                 .stream()
                 .map(TransactionResponse::fromEntity)
                 .toList();
