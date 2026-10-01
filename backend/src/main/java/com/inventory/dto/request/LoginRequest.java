@@ -1,5 +1,6 @@
 package com.inventory.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,6 +14,7 @@ import lombok.NoArgsConstructor;
 public class LoginRequest {
 
     @NotBlank(message = "Username or email is required")
+    @JsonAlias({"username", "email"})
     private String usernameOrEmail;
 
     @NotBlank(message = "Password is required")

@@ -7,7 +7,7 @@ import { Button } from '../components/ui/Button';
 import toast from 'react-hot-toast';
 
 export default function LoginPage() {
-  const [formData, setFormData] = useState({ username: '', password: '' });
+  const [formData, setFormData] = useState({ usernameOrEmail: '', password: '' });
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -38,10 +38,10 @@ export default function LoginPage() {
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
             <Input
-              label="Username"
+              label="Username or Email"
               required
-              value={formData.username}
-              onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+              value={formData.usernameOrEmail}
+              onChange={(e) => setFormData({ ...formData, usernameOrEmail: e.target.value })}
             />
             <Input
               label="Password"

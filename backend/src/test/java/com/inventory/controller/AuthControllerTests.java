@@ -140,6 +140,24 @@ class AuthControllerTests {
                 .andExpect(jsonPath("$.success", is(true)))
                 .andExpect(jsonPath("$.data.token", notNullValue()))
                 .andExpect(jsonPath("$.data.user.role", is("EMPLOYEE")));
+
+        // Test login using 'username' JSON alias
+        String loginJsonWithUsernameAlias = "{\"username\":\"alice_smith\",\"password\":\"securePass123\"}";
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(loginJsonWithUsernameAlias))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success", is(true)))
+                .andExpect(jsonPath("$.data.token", notNullValue()));
+
+        // Test login using 'email' JSON alias
+        String loginJsonWithEmailAlias = "{\"email\":\"alice@example.com\",\"password\":\"securePass123\"}";
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(loginJsonWithEmailAlias))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success", is(true)))
+                .andExpect(jsonPath("$.data.token", notNullValue()));
     }
 
     @Test
