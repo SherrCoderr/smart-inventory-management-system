@@ -6,9 +6,32 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3.4-38bdf8.svg)](https://tailwindcss.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791.svg)](https://www.postgresql.org/)
 [![Redis](https://img.shields.io/badge/Redis-7-red.svg)](https://redis.io/)
-[![Tests](https://img.shields.io/badge/Tests-40%20Passed-success.svg)]()
+[![Tests](https://img.shields.io/badge/Tests-47%20Passed-success.svg)]()
 
 > A production-grade, full-stack inventory management platform engineered with **high-concurrency transaction guarantees**, **two-phase optimistic/pessimistic locking**, **Redis cache eviction strategies**, and **role-based security**. Built as a flagship placement project demonstrating advanced backend engineering and system design.
+
+---
+
+## 🎭 Demo Data & Portfolio Showcase
+
+For portfolio demonstrations and production evaluation, the backend includes a built-in, idempotent **`DemoDataSeeder`**. When enabled via `DEMO_DATA_ENABLED=true`, it populates a realistic, enterprise-grade inventory dataset with consistent transaction histories and stock states.
+
+### Pre-Seeded Demo Credentials:
+
+| Role | Username | Email | Password | Permissions |
+|---|---|---|---|---|
+| **Admin** | `admin_demo` | `admin@inventory.demo` | `DemoAdmin@123` | Full CRUD, Supplier & Category Management, Stock Ops, Analytics |
+| **Employee** | `sarah_inventory` | `sarah@inventory.demo` | `DemoStaff@123` | Read-only catalogs, Stock-IN, Stock-OUT, Transaction Audit |
+| **Employee** | `marcus_warehouse` | `marcus@inventory.demo` | `DemoStaff@123` | Read-only catalogs, Stock-IN, Stock-OUT, Transaction Audit |
+
+### What Gets Seeded:
+- **6 Realistic Categories**: Electronics & Hardware, Computer Accessories, Networking, Storage & Memory, Office Furniture, Office Supplies.
+- **6 Enterprise Suppliers**: Apex Logistics, NexaByte Global, Global Office Solutions, Silicon Harbor, Quantum Peripherals, Vantage Networks.
+- **20 Realistic Products**: Dell Latitude laptops, Logitech mice, TP-Link routers, Samsung 990 PRO SSDs, Herman Miller standing desks, Cisco managed switches, etc.
+  - **Healthy stock**: 14 products with healthy quantity buffers.
+  - **Low Stock & Reorder candidates**: 6 products with `currentStock <= minStockThreshold` (e.g. HP LaserJet Pro, Cisco Switch, ErgoHuman Chair) to showcase real-time alerts and reorder calculations.
+- **30 Historical Transactions**: Spanning 14 days of `STOCK_IN` and `STOCK_OUT` operations to populate the 7-day movement chart, KPI cards, and audit logs immediately on login.
+- **Idempotency Guarantee**: Checks existing records before insertion. Restarting the application will never create duplicates or delete existing user data.
 
 ---
 
