@@ -1,6 +1,7 @@
 package com.inventory.repository;
 
 import com.inventory.entity.InventoryTransaction;
+import com.inventory.entity.Product;
 import com.inventory.entity.TransactionType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -54,4 +55,8 @@ public interface InventoryTransactionRepository extends JpaRepository<InventoryT
     @EntityGraph(attributePaths = {"product", "user"})
     @Query("SELECT t FROM InventoryTransaction t ORDER BY t.createdAt DESC")
     List<InventoryTransaction> findRecentTransactionsWithDetails(Pageable pageable);
+
+    boolean existsByReferenceReason(String referenceReason);
+
+    boolean existsByProductAndReferenceReason(Product product, String referenceReason);
 }
